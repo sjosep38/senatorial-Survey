@@ -114,6 +114,8 @@ button:disabled {
     </div>
   </div>
 <button onclick="exportResults()">Export Results</button>
+<button onclick="resetStorage()" style="background-color: red;">🗑️ Reset All Votes</button>
+
 <script>
     const candidateNames = [
       "ABALOS, BENHUR (PFP)", "ADONIS, JEROME (MKBYN)", "AMAD, WILSON (IND)",
@@ -273,6 +275,16 @@ sessionStorage.setItem(votedKey, true);
       a.click();
       URL.revokeObjectURL(url);
     }
+	
+	function resetStorage() {
+  if (confirm("Are you sure you want to reset all votes? This action cannot be undone.")) {
+    localStorage.removeItem("senateVotes");
+    localStorage.removeItem("hasVoted"); // Also remove voting lock
+    alert("All votes have been reset.");
+    location.reload(); // Refresh page to reset UI
+  }
+}
+
   </script>
 
 </body>
