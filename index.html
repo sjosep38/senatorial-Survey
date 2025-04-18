@@ -13,6 +13,19 @@
       padding: 15px;
     }
 
+    .candidate label {
+      padding: 8px;
+      border-radius: 6px;
+      transition: background-color 0.3s ease;
+      display: block;
+    }
+
+    .candidate.selected label {
+      background-color: #d4edda;
+      font-weight: bold;
+      border: 1px solid #28a745;
+    }
+
     #remaining {
       font-weight: bold;
       margin-bottom: 20px;
@@ -20,6 +33,20 @@
 
     .submit-btn {
       margin-top: 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+	    width: 100%;
+  height:150px
+    }
+
+    .submit-btn:hover {
+      background-color: #0056b3;
     }
 
     /* Modal styles */
@@ -55,36 +82,29 @@
     .close:focus {
       color: black;
     }
+
+    #exportBtn {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    #exportBtn:hover {
+      background-color: #218838;
+    }
 	
-	button {
-  background-color: #007BFF;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  font-size: 100px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 10px;
-  width: 100%;
-  height:150px;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
 
   </style>
 </head>
 <body>
 
   <h1>Select for up to 12 Senators</h1>
-  <div id="remaining"></div>
+  <div id="remaining">Remaining selections: 12</div>
 
   <form id="electionForm">
     <div id="candidates"></div>
@@ -97,10 +117,10 @@ button:disabled {
       <span class="close">&times;</span>
       <h2>Top Candidates</h2>
       <ul id="selectedList"></ul>
-      <button onclick="exportResults()">📄 Export Results</button>
+      <button id="exportBtn" onclick="exportResults()">📄 Export Results</button>
     </div>
   </div>
-<button onclick="exportResults()">Export Results</button>
+
   <script>
     const candidateNames = [
       "ABALOS, BENHUR (PFP)", "ADONIS, JEROME (MKBYN)", "AMAD, WILSON (IND)",
@@ -131,7 +151,6 @@ button:disabled {
     const voteKey = "senateVotes";
     const votedKey = "hasVoted";
 
-    // Load scores from localStorage
     let candidateScores = JSON.parse(localStorage.getItem(voteKey)) || {};
     candidateNames.forEach(name => {
       if (!(name in candidateScores)) {
@@ -142,20 +161,20 @@ button:disabled {
     const candidatesContainer = document.getElementById("candidates");
     const remainingDisplay = document.getElementById("remaining");
 
-    candidateNames.forEach((name, index) => {
+    candidateNames.forEach(name => {
       const candidateDiv = document.createElement("div");
       candidateDiv.className = "candidate";
       candidateDiv.innerHTML = `
         <label>
           <input type="checkbox" name="candidate" value="${name}">
           ${name}
-
         </label>
       `;
       candidatesContainer.appendChild(candidateDiv);
     });
 
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
     checkboxes.forEach(cb => {
       cb.addEventListener('change', () => {
         const selected = document.querySelectorAll('input[type="checkbox"]:checked');
@@ -166,7 +185,17 @@ button:disabled {
           cb.checked = false;
           alert("You can only select up to 12 candidates.");
           remainingDisplay.textContent = `Remaining selections: ${maxSelections - document.querySelectorAll('input[type="checkbox"]:checked').length}`;
+          return;
         }
+
+        checkboxes.forEach(box => {
+          const parent = box.closest('.candidate');
+          if (box.checked) {
+            parent.classList.add('selected');
+          } else {
+            parent.classList.remove('selected');
+          }
+        });
       });
     });
 
@@ -174,16 +203,16 @@ button:disabled {
     const selectedList = document.getElementById("selectedList");
     const closeModal = document.querySelector(".close");
 
-    document.getElementById("electionForm").addEventListener("submit", function(e) {
+    document.getElementById("electionForm").addEventListener("submit", function (e) {
       e.preventDefault();
 
-      // Limit Form once per user
       if (localStorage.getItem(votedKey)) {
-        alert("Your survey form have already submitted. Only one form is allowed per user.");
+        alert("Your survey form has already been submitted. Only one form is allowed per user.");
         return;
       }
 
       const selectedCandidates = Array.from(document.querySelectorAll('input[name="candidate"]:checked')).map(cb => cb.value);
+
       if (selectedCandidates.length === 0) {
         alert("Please select at least one candidate.");
         return;
@@ -193,11 +222,9 @@ button:disabled {
         candidateScores[name]++;
       });
 
-      // Save to localStorage
       localStorage.setItem(voteKey, JSON.stringify(candidateScores));
       localStorage.setItem(votedKey, true);
 
-      // Show sorted results
       selectedList.innerHTML = "";
 
       const sortedResults = Object.entries(candidateScores)
