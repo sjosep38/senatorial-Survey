@@ -1,146 +1,250 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Election System</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-        }
-        header {
-            background-color: #3b4a67;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        .container {
-            padding: 20px;
-        }
-        .section {
-            background-color: white;
-            margin-bottom: 20px;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            margin-top: 0;
-        }
-        .candidate-list {
-            list-style-type: none;
-            padding-left: 0;
-        }
-        .candidate-list li {
-            margin-bottom: 10px;
-        }
-        label {
-            font-weight: bold;
-        }
-        .candidate-radio {
-            margin-right: 10px;
-        }
-        .btn {
-            background-color: #3b4a67;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-align: center;
-            display: block;
-            margin-top: 20px;
-            width: 100%;
-        }
-        .btn:hover {
-            background-color: #2c3e50;
-        }
-        .error {
-            color: red;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        .summary {
-            margin-top: 20px;
-        }
-        .summary h3 {
-            color: #3b4a67;
-        }
-        .summary p {
-            margin: 5px 0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Senatorial Survey 2025</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    .candidate {
+      display: inline-block;
+      width: 300px;
+      padding: 5px;
+    }
+
+    #remaining {
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .submit-btn {
+      margin-top: 20px;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 5px;
+      width: 60%;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+    }
+	
+	button {
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+  width: 100%;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+  </style>
 </head>
 <body>
 
-<header>
-    <h1>Election System</h1>
-    <p>Please select your candidates for each position</p>
-</header>
+  <h1>Select for up to 12 Senators</h1>
+  <div id="remaining"></div>
 
-<div class="container">
+  <form id="electionForm">
+    <div id="candidates"></div>
+    <button class="submit-btn" type="submit">Submit Survey</button>
+  </form>
 
-    <!-- Senators Section -->
-    <div class="section" id="senators-section">
-        <h2>Senators (13 Seats)</h2>
-        <form>
-            <div>
-                <label>Choose your Senators:</label>
-                <ul class="candidate-list">
-                    <!-- Add up to 13 candidates -->
-                    <li><input type="radio" id="senator1" name="senator" class="candidate-radio"> <label for="senator1">Candidate 1</label></li>
-                    <li><input type="radio" id="senator2" name="senator" class="candidate-radio"> <label for="senator2">Candidate 2</label></li>
-                    <li><input type="radio" id="senator3" name="senator" class="candidate-radio"> <label for="senator3">Candidate 3</label></li>
-                    <!-- Add up to 13 Senators -->
-                </ul>
-            </div>
-        </form>
+  <!-- Modal -->
+  <div id="resultModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Top Candidates</h2>
+      <ul id="selectedList"></ul>
+      <button onclick="exportResults()">📄 Export Results</button>
     </div>
+  </div>
+<button onclick="exportResults()">Export Results</button>
+  <script>
+    const candidateNames = [
+      "ABALOS, BENHUR (PFP)", "ADONIS, JEROME (MKBYN)", "AMAD, WILSON (IND)",
+      "ANDAMO, NARS ALYN (MKBYN)", "AQUINO, BAM (KNP)", "ARAMBULO, RONNEL (MKBYN)",
+      "ARELLANO, ERNESTO (KTPNAN)", "BALLON, ROBERTO (IND)", "BINAY, ABBY (NPC)",
+      "BONDOC, JIMMY (PDPLBN)", "BONG REVILLA, RAMON, JR. (LAKAS)", "BOSITA, COLONEL (IND)",
+      "BROSAS, ARLENE (MKBYN)", "CABONEGRO, ROY (DPP)", "CAPUYAN, ALLEN (PPP)",
+      "CASIÑO, TEDDY (MKBYN)", "CASTRO, TEACHER FRANCE (MKBYN)", "CAYETANO, PIA (NP)",
+      "D'ANGELO, DAVID (BUNYOG)", "DE ALBAN, ATTORNEY ANGELO (IND)", "DE GUZMAN, KA LEODY (PLM)",
+      "DELA ROSA, BATO (PDPLBN)", "DORINGO, NANAY MIMI (MKBYN)", "ESCOBAL, ARNEL (PM)",
+      "ESPIRITU, LUKE (PLM)", "FLORANDA, MODY PISTON (MKBYN)", "GAMBOA, MARC LOUIE (IND)",
+      "GO, BONG GO (PDPLBN)", "GONZALES, NORBERTO (PDSP)", "HINLO, JAYVEE (PDPLBN)",
+      "HONASAN, GRINGO (RP)", "JOSE, RELLY JR. (KBL)", "LACSON, PING (IND)",
+      "LAMBINO, RAUL (PDPLBN)", "LAPID, LITO (NPC)", "LIDASAN, AMIRAH (MKBYN)",
+      "MARCOLETA, RODANTE (IND)", "MARCOS, IMEE R. (NP)", "MARQUEZ, NORMAN (IND)",
+      "MARTINEZ, ERIC (IND)", "MATA, DOC MARITES (IND)", "MATULA, ATTY. SONNY (WPP)",
+      "MAZA, LIZA (MKBYN)", "MENDOZA, HEIDI (IND)", "MONTEMAYOR, JOEY (IND)",
+      "MUSTAPHA, SUBAIR (WPP)", "OLIVAR, JOSE JESSIE (IND)", "PACQUIAO, MANNY PACMAN (PFP)",
+      "PANGILINAN, KIKO (LP)", "QUERUBIN, ARIEL PORFIRIO (NP)", "QUIBOLOY, APOLLO (IND)",
+      "RAMOS, DANILO (MKBYN)", "REVILLAME, WILLIE WIL (IND)", "RODRIGUEZ, ATTY. VIC (IND)",
+      "SAHIDULLA, NUR-ANA (IND)", "SALVADOR, PHILLIP IPE (PDPLBN)", "SOTTO, TITO (NPC)",
+      "TAPADO, MICHAEL BONGBONG (PM)", "TOLENTINO, FRANCIS TOL (PFP)", "TULFO, BEN BITAG (IND)",
+      "TULFO, ERWIN (LAKAS)", "VALBUENA, MAR MANIBELA (IND)", "VERCELES, LEANDRO (IND)",
+      "VILLAR, CAMILLE (NP)"
+    ];
 
-    <!-- Other sections here, similar to Senators -->
+    const maxSelections = 12;
+    const voteKey = "senateVotes";
+    const votedKey = "hasVoted";
 
-    <button class="btn" id="submit-vote">Submit Vote</button>
-    <div class="error" id="error-message"></div>
-
-    <!-- Voting Summary Section -->
-    <div class="summary" id="vote-summary" style="display: none;">
-        <h3>Voting Summary</h3>
-        <p><strong>Senator:</strong> <span id="selected-senator"></span></p>
-        <!-- Add more sections for other positions as needed -->
-    </div>
-
-</div>
-
-<script>
-    document.getElementById("submit-vote").addEventListener("click", function(e) {
-        e.preventDefault();
-
-        // Clear previous error messages
-        document.getElementById("error-message").innerHTML = "";
-
-        // Get selected candidates
-        let selectedSenator = document.querySelector('input[name="senator"]:checked');
-        if (!selectedSenator) {
-            document.getElementById("error-message").innerHTML = "You must select a Senator.";
-            return;
-        }
-
-        // Capture other positions in the same way...
-
-        // Prepare summary
-        document.getElementById("selected-senator").innerText = selectedSenator ? selectedSenator.nextElementSibling.innerText : "None";
-
-        // Show the voting summary
-        document.getElementById("vote-summary").style.display = "block";
-
-        // Optionally: Hide the form after submission
-        document.getElementById("senators-section").style.display = "none";
-        // Hide other sections here...
+    // Load scores from localStorage
+    let candidateScores = JSON.parse(localStorage.getItem(voteKey)) || {};
+    candidateNames.forEach(name => {
+      if (!(name in candidateScores)) {
+        candidateScores[name] = 0;
+      }
     });
-</script>
+
+    const candidatesContainer = document.getElementById("candidates");
+    const remainingDisplay = document.getElementById("remaining");
+
+    candidateNames.forEach((name, index) => {
+      const candidateDiv = document.createElement("div");
+      candidateDiv.className = "candidate";
+      candidateDiv.innerHTML = `
+        <label>
+          <input type="checkbox" name="candidate" value="${name}">
+          ${name}
+
+        </label>
+      `;
+      candidatesContainer.appendChild(candidateDiv);
+    });
+
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(cb => {
+      cb.addEventListener('change', () => {
+        const selected = document.querySelectorAll('input[type="checkbox"]:checked');
+        const remaining = maxSelections - selected.length;
+        remainingDisplay.textContent = `Remaining selections: ${remaining}`;
+
+        if (remaining < 0) {
+          cb.checked = false;
+          alert("You can only select up to 12 candidates.");
+          remainingDisplay.textContent = `Remaining selections: ${maxSelections - document.querySelectorAll('input[type="checkbox"]:checked').length}`;
+        }
+      });
+    });
+
+    const modal = document.getElementById("resultModal");
+    const selectedList = document.getElementById("selectedList");
+    const closeModal = document.querySelector(".close");
+
+    document.getElementById("electionForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      // Limit Form once per user
+      if (localStorage.getItem(votedKey)) {
+        alert("Your survey form have already submitted. Only one form is allowed per user.");
+        return;
+      }
+
+      const selectedCandidates = Array.from(document.querySelectorAll('input[name="candidate"]:checked')).map(cb => cb.value);
+      if (selectedCandidates.length === 0) {
+        alert("Please select at least one candidate.");
+        return;
+      }
+
+      selectedCandidates.forEach(name => {
+        candidateScores[name]++;
+      });
+
+      // Save to localStorage
+      localStorage.setItem(voteKey, JSON.stringify(candidateScores));
+      localStorage.setItem(votedKey, true);
+
+      // Show sorted results
+      selectedList.innerHTML = "";
+
+      const sortedResults = Object.entries(candidateScores)
+        .filter(([_, score]) => score > 0)
+        .sort((a, b) => b[1] - a[1]);
+
+      sortedResults.forEach(([name, score]) => {
+        const li = document.createElement("li");
+        li.textContent = `${name} — ${score} vote(s)`;
+        selectedList.appendChild(li);
+      });
+
+      document.getElementById("electionForm").reset();
+      remainingDisplay.textContent = `Remaining selections: ${maxSelections}`;
+      modal.style.display = "block";
+    });
+
+    closeModal.onclick = function () {
+      modal.style.display = "none";
+    };
+
+    window.onclick = function (event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    };
+
+    function exportResults() {
+      const sortedResults = Object.entries(candidateScores)
+        .filter(([_, score]) => score > 0)
+        .sort((a, b) => b[1] - a[1]);
+
+      let resultText = "Senatorial Election Results\n\n";
+      sortedResults.forEach(([name, score]) => {
+        resultText += `${name} - ${score} vote(s)\n`;
+      });
+
+      const blob = new Blob([resultText], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Survey_results.txt";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
 
 </body>
 </html>
