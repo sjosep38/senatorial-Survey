@@ -39,7 +39,7 @@
     .modal {
       display: none;
       position: fixed;
-     
+      z-index: 1000;
       left: 0;
       top: 0;
       width: 100%;
@@ -199,10 +199,10 @@ button:disabled {
     document.getElementById("electionForm").addEventListener("submit", function (e) {
       e.preventDefault();
 
-      if (localStorage.getItem(votedKey)) {
-        alert("Your survey form has already been submitted. Only one form is allowed per user.");
-        return;
-      }
+     // if (localStorage.getItem(votedKey)) {
+      //  alert("Your survey form has already been submitted. Only one form is allowed per user.");
+     //   return;
+     // }
 
       const selectedCandidates = Array.from(document.querySelectorAll('input[name="candidate"]:checked')).map(cb => cb.value);
 
