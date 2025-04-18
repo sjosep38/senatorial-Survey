@@ -204,6 +204,16 @@ button:disabled {
      //   return;
      // }
 
+const votedKey = "hasVotedSession";
+
+if (sessionStorage.getItem(votedKey)) {
+  alert("You’ve already done submitting your survey form during this session.");
+  return;
+}
+
+sessionStorage.setItem(votedKey, true);
+
+
       const selectedCandidates = Array.from(document.querySelectorAll('input[name="candidate"]:checked')).map(cb => cb.value);
 
       if (selectedCandidates.length === 0) {
