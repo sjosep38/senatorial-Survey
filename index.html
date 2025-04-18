@@ -12,19 +12,19 @@
     .candidate {
       padding: 15px;
     }
+	
+	.candidate label {
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
 
-    .candidate label {
-      padding: 8px;
-      border-radius: 6px;
-      transition: background-color 0.3s ease;
-      display: block;
-    }
+.candidate.selected label {
+  background-color: #d4edda; /* Light green */
+  font-weight: bold;
+  border: 1px solid #28a745;
+}
 
-    .candidate.selected label {
-      background-color: #d4edda;
-      font-weight: bold;
-      border: 1px solid #28a745;
-    }
 
     #remaining {
       font-weight: bold;
@@ -33,20 +33,6 @@
 
     .submit-btn {
       margin-top: 20px;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 24px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-	    width: 100%;
-  height:150px
-    }
-
-    .submit-btn:hover {
-      background-color: #0056b3;
     }
 
     /* Modal styles */
@@ -82,29 +68,36 @@
     .close:focus {
       color: black;
     }
-
-    #exportBtn {
-      background-color: #28a745;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    #exportBtn:hover {
-      background-color: #218838;
-    }
 	
+	button {
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 100px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+  width: 100%;
+  height:150px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
 
   </style>
 </head>
 <body>
 
   <h1>Select for up to 12 Senators</h1>
-  <div id="remaining">Remaining selections: 12</div>
+  <div id="remaining"></div>
 
   <form id="electionForm">
     <div id="candidates"></div>
@@ -117,11 +110,11 @@
       <span class="close">&times;</span>
       <h2>Top Candidates</h2>
       <ul id="selectedList"></ul>
-      <button id="exportBtn" onclick="exportResults()">📄 Export Results</button>
+      <button onclick="exportResults()">📄 Export Results</button>
     </div>
   </div>
-
-  <script>
+<button onclick="exportResults()">Export Results</button>
+<script>
     const candidateNames = [
       "ABALOS, BENHUR (PFP)", "ADONIS, JEROME (MKBYN)", "AMAD, WILSON (IND)",
       "ANDAMO, NARS ALYN (MKBYN)", "AQUINO, BAM (KNP)", "ARAMBULO, RONNEL (MKBYN)",
@@ -257,7 +250,7 @@
         .filter(([_, score]) => score > 0)
         .sort((a, b) => b[1] - a[1]);
 
-      let resultText = "Senatorial Election Results\n\n";
+      let resultText = "Senatorial Survey Results  \n\n";
       sortedResults.forEach(([name, score]) => {
         resultText += `${name} - ${score} vote(s)\n`;
       });
